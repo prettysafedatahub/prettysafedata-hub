@@ -76,3 +76,8 @@ button {
   font-size: 12px;
   opacity: 0.6;
 }
+<div class="networks">
+  <div class="net">MTN</div>
+  <div class="net">Telecel</div>
+  <div class="net">AT</div>
+</div>
