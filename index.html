@@ -39,7 +39,7 @@ button{background:#2563eb;color:white;font-weight:bold}
 <button onclick="login()">Login</button>
 </div>
 
-<!-- ADMIN DASHBOARD -->
+<!-- DASHBOARD -->
 <div class="admin" id="dashboard">
 <h3>Orders Dashboard</h3>
 <div id="orders">Loading...</div>
@@ -91,22 +91,24 @@ function login(){
 }
 
 /* STATE */
-let network="", plan=0;
+let network = "";
+let plan = 0;
 
-/* SELECT */
+/* SELECT NETWORK */
 document.querySelectorAll(".net").forEach(n=>{
  n.onclick=()=>{
   document.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
   n.classList.add("active");
-  network=n.innerText;
+  network = n.innerText;
  };
 });
 
+/* SELECT PLAN */
 document.querySelectorAll(".plan").forEach(p=>{
  p.onclick=()=>{
   document.querySelectorAll(".plan").forEach(x=>x.classList.remove("active"));
   p.classList.add("active");
-  plan=parseInt(p.innerText);
+  plan = parseInt(p.innerText);
  };
 });
 
@@ -134,61 +136,60 @@ async function loadOrders(){
   document.getElementById("orders").innerHTML = html || "No orders yet";
   document.getElementById("total").innerText = total;
 
- }catch(e){
+ } catch(e){
   document.getElementById("orders").innerHTML = "DB error";
  }
 }
 
-/* BUY BUTTON */
+/* BUY BUTTON (FIXED SAFE VERSION) */
 document.getElementById("buy").onclick = function () {
 
-alert("CLICK DETECTED ✔");
+  alert("CLICK DETECTED ✔");
 
-let phone = document.getElementById("phone").value;
+  let phone = document.getElementById("phone").value;
 
-if(!network || !plan || !phone){
- alert("Fill all fields");
- return;
-}
-
-alert(typeof PaystackPop);
-}
-
-let handler = PaystackPop.setup({
-  key: "pk_test_a264d8673ba4f2a6a3fdf36ae95f29a120493176",
-  email: "customer@test.com",
-  amount: plan * 100,
-  currency: "GHS",
-  ref: "TX" + Date.now(),
-
-  callback: async function(res){
-
-    try{
-      await db.collection("orders").add({
-        network,
-        plan,
-        phone,
-        status:"Paid",
-        ref:res.reference,
-        time:new Date().toISOString()
-      });
-
-      alert("Payment successful ✔");
-      loadOrders();
-
-    }catch(e){
-      alert("Paid but database error");
-    }
-
-  },
-
-  onClose: function(){
-    alert("Payment cancelled");
+  if(!network || !plan || !phone){
+    alert("Fill all fields");
+    return;
   }
-});
 
-handler.openIframe();
+  if(typeof PaystackPop === "undefined"){
+    alert("Payment system not loaded. Refresh or use Chrome.");
+    return;
+  }
 
+  let handler = PaystackPop.setup({
+    key: "pk_test_a264d8673ba4f2a6a3fdf36ae95f29a120493176",
+    email: "customer@test.com",
+    amount: plan * 100,
+    currency: "GHS",
+    ref: "TX" + Date.now(),
+
+    callback: async function(res){
+      try{
+        await db.collection("orders").add({
+          network,
+          plan,
+          phone,
+          status: "Paid",
+          ref: res.reference,
+          time: new Date().toISOString()
+        });
+
+        alert("Payment successful ✔");
+        loadOrders();
+
+      } catch(e){
+        alert("Payment succeeded but DB error");
+      }
+    },
+
+    onClose: function(){
+      alert("Payment cancelled");
+    }
+  });
+
+  handler.openIframe();
 };
 
 loadOrders();
