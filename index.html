@@ -4,7 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prettysafedata Hub</title>
 
-  <!-- FIREBASE CDN -->
+  <!-- Firebase CDN -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 
@@ -23,13 +23,7 @@
     }
 
     .top h1 {
-      font-size: 28px;
-      margin-bottom: 5px;
-    }
-
-    .top p {
-      opacity: 0.7;
-      font-size: 13px;
+      font-size: 26px;
     }
 
     .networks {
@@ -45,12 +39,8 @@
       text-align: center;
       font-weight: bold;
       cursor: pointer;
-      transition: 0.2s;
+      background: rgba(255,255,255,0.12);
     }
-
-    .mtn { background: #ffcc00; color: black; }
-    .telecel { background: #e53935; }
-    .at { background: #1e88e5; }
 
     .grid {
       display: grid;
@@ -78,10 +68,10 @@
     button {
       width: 100%;
       padding: 15px;
+      margin-top: 12px;
       border-radius: 14px;
       border: none;
-      margin-top: 12px;
-      background: linear-gradient(90deg, #2563eb, #4f46e5);
+      background: linear-gradient(90deg,#2563eb,#4f46e5);
       color: white;
       font-weight: bold;
     }
@@ -98,9 +88,9 @@
   </div>
 
   <div class="networks">
-    <div class="net mtn">MTN</div>
-    <div class="net telecel">Telecel</div>
-    <div class="net at">AT</div>
+    <div class="net">MTN</div>
+    <div class="net">Telecel</div>
+    <div class="net">AT</div>
   </div>
 
   <div class="grid">
@@ -116,7 +106,7 @@
 </div>
 
 <script>
-// FIREBASE CONFIG (REPLACE THIS)
+/* 🔥 STEP 1: PASTE YOUR FIREBASE CONFIG HERE */
 const firebaseConfig = {
   apiKey: "PASTE_HERE",
   authDomain: "PASTE_HERE",
@@ -126,37 +116,38 @@ const firebaseConfig = {
   appId: "PASTE_HERE"
 };
 
+/* 🔥 STEP 2: INIT FIREBASE */
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+/* STATE */
 let selectedNetwork = "";
 let selectedPlan = "";
-let phone = "";
 
-// network select
+/* NETWORK SELECT */
 document.querySelectorAll(".net").forEach(el => {
   el.addEventListener("click", () => {
     selectedNetwork = el.innerText;
   });
 });
 
-// plan select
+/* PLAN SELECT */
 document.querySelectorAll(".card").forEach(el => {
   el.addEventListener("click", () => {
     selectedPlan = el.innerText;
   });
 });
 
-// buy + save to firebase
+/* BUY + SAVE TO FIREBASE */
 document.querySelector("button").addEventListener("click", () => {
-  phone = document.querySelector("input").value;
+  const phone = document.querySelector("input").value;
 
   if (!selectedNetwork || !selectedPlan || !phone) {
-    alert("Fill all fields");
+    alert("Please fill all fields");
     return;
   }
 
-  let order = {
+  const order = {
     network: selectedNetwork,
     plan: selectedPlan,
     phone: phone,
@@ -165,12 +156,8 @@ document.querySelector("button").addEventListener("click", () => {
   };
 
   db.collection("orders").add(order)
-    .then(() => {
-      alert("Order saved successfully!");
-    })
-    .catch(err => {
-      alert("Error: " + err);
-    });
+    .then(() => alert("Order saved successfully!"))
+    .catch(err => alert(err.message));
 });
 </script>
 
