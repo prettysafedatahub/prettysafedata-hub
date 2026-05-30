@@ -6,7 +6,6 @@
 
 <script src="https://js.paystack.co/v1/inline.js"></script>
 
-<!-- Firebase OLD STYLE (works on GitHub Pages) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -42,7 +41,6 @@ button{background:#2563eb;color:white;font-weight:bold}
 </div>
 
 <script>
-/* FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyAOtIxgs88Nfny4c_WnIF95GpmqHGtaYio",
   authDomain: "prettysafedata-hub.firebaseapp.com",
@@ -52,7 +50,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* SELECT */
 let network="", plan=0;
 
 document.querySelectorAll(".net").forEach(n=>{
@@ -67,11 +64,10 @@ document.querySelectorAll(".plan").forEach(p=>{
  p.onclick=()=>{
   document.querySelectorAll(".plan").forEach(x=>x.classList.remove("active"));
   p.classList.add("active");
-  plan=parseInt(p.innerText.match(/\d+/)[0]);
+  plan=parseInt(p.innerText);
  };
 });
 
-/* BUY BUTTON */
 document.getElementById("buy").onclick=function(){
 
 let phone=document.getElementById("phone").value;
@@ -91,9 +87,9 @@ let handler = PaystackPop.setup({
   callback: function(res){
 
     db.collection("orders").add({
-      network: network,
-      plan: plan,
-      phone: phone,
+      network,
+      plan,
+      phone,
       status: "Paid",
       ref: res.reference,
       time: new Date().toISOString()
