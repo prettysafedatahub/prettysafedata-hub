@@ -6,6 +6,10 @@
 
 <script src="https://js.paystack.co/v1/inline.js"></script>
 
+<!-- Firebase OLD STYLE (works on GitHub Pages) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 <style>
 body{margin:0;font-family:system-ui;background:#0b0f2f;color:white}
 .app{max-width:420px;margin:auto;padding:20px}
@@ -13,19 +17,14 @@ body{margin:0;font-family:system-ui;background:#0b0f2f;color:white}
 .active{border:2px solid #2563eb}
 input,button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px}
 button{background:#2563eb;color:white;font-weight:bold}
-#admin{display:none;background:#111827;padding:20px}
-.card{background:#ffffff15;padding:10px;margin:10px 0;border-radius:10px}
 </style>
 </head>
 
 <body>
 
-<!-- SHOP -->
-<div class="app" id="shop">
+<div class="app">
 
 <h2>Prettysafedata Hub</h2>
-
-<button onclick="showAdmin()">Admin</button>
 
 <h4>Network</h4>
 <div class="box net">MTN</div>
@@ -42,30 +41,18 @@ button{background:#2563eb;color:white;font-weight:bold}
 
 </div>
 
-<!-- ADMIN -->
-<div id="admin">
-<h2>Orders Dashboard</h2>
-<button onclick="showShop()">Back</button>
-<div id="orders">Loading...</div>
-</div>
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
-
+<script>
+/* FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyAOtIxgs88Nfny4c_WnIF95GpmqHGtaYio",
   authDomain: "prettysafedata-hub.firebaseapp.com",
-  projectId: "prettysafedata-hub",
-  storageBucket: "prettysafedata-hub.firebasestorage.app",
-  messagingSenderId: "291519826599",
-  appId: "1:291519826599:web:0546c070a173b7fbdde982"
+  projectId: "prettysafedata-hub"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
+/* SELECT */
 let network="", plan=0;
 
 document.querySelectorAll(".net").forEach(n=>{
@@ -84,6 +71,7 @@ document.querySelectorAll(".plan").forEach(p=>{
  };
 });
 
+/* BUY BUTTON */
 document.getElementById("buy").onclick=function(){
 
 let phone=document.getElementById("phone").value;
@@ -93,64 +81,31 @@ if(!network||!plan||!phone){
  return;
 }
 
-let handler=PaystackPop.setup({
- key:"pk_test_a264d8673ba4f2a6a3fdf36ae95f29a120493176",
- email:"customer@test.com",
- amount:plan*100,
- currency:"GHS",
- ref:"TX"+Date.now(),
+let handler = PaystackPop.setup({
+  key: "pk_test_a264d8673ba4f2a6a3fdf36ae95f29a120493176",
+  email: "customer@test.com",
+  amount: plan * 100,
+  currency: "GHS",
+  ref: "TX" + Date.now(),
 
- callback:async function(res){
+  callback: function(res){
 
- await addDoc(collection(db,"orders"),{
-  network,
-  plan,
-  phone,
-  status:"Paid",
-  ref:res.reference,
-  time:new Date().toISOString()
- });
+    db.collection("orders").add({
+      network: network,
+      plan: plan,
+      phone: phone,
+      status: "Paid",
+      ref: res.reference,
+      time: new Date().toISOString()
+    });
 
- alert("Payment successful!");
- loadOrders();
- }
+    alert("Payment successful!");
+  }
 });
 
 handler.openIframe();
 
 };
-
-/* ADMIN */
-window.showAdmin=()=>{
- document.getElementById("shop").style.display="none";
- document.getElementById("admin").style.display="block";
- loadOrders();
-};
-
-window.showShop=()=>{
- document.getElementById("admin").style.display="none";
- document.getElementById("shop").style.display="block";
-};
-
-async function loadOrders(){
- const snap=await getDocs(collection(db,"orders"));
- let html="";
- snap.forEach(doc=>{
-  let d=doc.data();
-  html+=`
-  <div class="card">
-  <b>Network:</b> ${d.network}<br>
-  <b>Plan:</b> ${d.plan}<br>
-  <b>Phone:</b> ${d.phone}<br>
-  <b>Status:</b> ${d.status}<br>
-  <b>Time:</b> ${d.time}
-  </div>`;
- });
- document.getElementById("orders").innerHTML=html;
-}
-
-window.loadOrders=loadOrders;
-
 </script>
 
 </body>
