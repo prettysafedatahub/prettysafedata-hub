@@ -8,24 +8,18 @@
 body{margin:0;font-family:system-ui;background:#0b0f2f;color:white}
 .app{max-width:420px;margin:auto;padding:20px}
 
-.admin{
-  background:#111827;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:15px;
-}
-
 .box{background:#ffffff22;padding:15px;margin:10px 0;border-radius:10px;cursor:pointer}
 .active{border:2px solid #2563eb}
+
 input,button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px}
 button{background:#2563eb;color:white;font-weight:bold}
 
+#dashboard{display:none;background:#111827;padding:15px;border-radius:10px;margin-top:10px}
 .card{background:#ffffff15;padding:10px;margin:10px 0;border-radius:10px}
 </style>
 
 <script src="https://js.paystack.co/v1/inline.js"></script>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -35,10 +29,19 @@ button{background:#2563eb;color:white;font-weight:bold}
 
 <div class="app">
 
-<!-- ADMIN -->
-<div class="admin">
+<!-- LOGIN -->
+<div id="loginBox">
+<h3>Admin Login</h3>
+<input id="user" placeholder="Username">
+<input id="pass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
 <h3>Orders Dashboard</h3>
-<div id="orders">Loading...</div>
+<div id="orders">No orders yet</div>
+<h4>Total Sales: GHS <span id="total">0</span></h4>
 </div>
 
 <!-- SHOP -->
@@ -61,7 +64,7 @@ button{background:#2563eb;color:white;font-weight:bold}
 
 <script>
 
-/* FIREBASE CONFIG */
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyAOtIxgs88Nfny4c_WnIF95GpmqHGtaYio",
   authDomain: "prettysafedata-hub.firebaseapp.com",
@@ -70,6 +73,20 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+
+/* LOGIN */
+function login(){
+ let u = document.getElementById("user").value;
+ let p = document.getElementById("pass").value;
+
+ if(u==="admin" && p==="1234"){
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("dashboard").style.display="block";
+  loadOrders();
+ } else {
+  alert("Wrong login");
+ }
+}
 
 /* SELECT */
 let network="", plan=0;
@@ -101,7 +118,7 @@ if(!network || !plan || !phone){
 }
 
 if(typeof PaystackPop === "undefined"){
- alert("Payment system not loaded. Refresh page.");
+ alert("Payment system not loaded");
  return;
 }
 
@@ -137,9 +154,11 @@ async function loadOrders(){
  let snap = await db.collection("orders").get();
 
  let html = "";
+ let total = 0;
 
  snap.forEach(doc=>{
   let o = doc.data();
+  total += Number(o.plan);
 
   html += `
   <div class="card">
@@ -147,14 +166,12 @@ async function loadOrders(){
   <b>Plan:</b> ${o.plan}<br>
   <b>Phone:</b> ${o.phone}<br>
   <b>Status:</b> ${o.status}<br>
-  <b>Time:</b> ${o.time}
   </div>`;
  });
 
  document.getElementById("orders").innerHTML = html || "No orders yet";
+ document.getElementById("total").innerText = total;
 }
-
-loadOrders();
 
 </script>
 
