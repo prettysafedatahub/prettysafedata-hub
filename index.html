@@ -28,15 +28,22 @@ h1{margin:0;}
 
 .net{
   flex:1;
-  padding:15px;
+  padding:12px;
   border-radius:12px;
-  background:#ffffff20;
-  text-align:center;
+  background:rgba(255,255,255,0.12);
+  display:flex;
+  align-items:center;
+  justify-content:center;
   cursor:pointer;
 }
 
+.net img{
+  width:55px;
+  height:auto;
+}
+
 .active{
-  background:#2563eb !important;
+  border:2px solid #2563eb;
 }
 
 .grid{
@@ -48,7 +55,7 @@ h1{margin:0;}
 
 .card{
   padding:15px;
-  background:#ffffff15;
+  background:rgba(255,255,255,0.1);
   border-radius:12px;
   text-align:center;
   cursor:pointer;
@@ -84,14 +91,24 @@ button{
 <div class="app">
 
 <h1>Prettysafedata Hub</h1>
-<p>Instant Mobile Data</p>
+<p>Instant Mobile Data • MTN • Telecel • AT</p>
 
+<!-- NETWORKS WITH LOGOS -->
 <div class="networks">
-  <div class="net">MTN</div>
-  <div class="net">Telecel</div>
-  <div class="net">AT</div>
+  <div class="net">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/MTN_Logo.svg">
+  </div>
+
+  <div class="net">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Telecel_logo.png">
+  </div>
+
+  <div class="net">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/AT_logo.png">
+  </div>
 </div>
 
+<!-- PLANS -->
 <div class="grid">
   <div class="card">1GB - GHS 5</div>
   <div class="card">2GB - GHS 10</div>
@@ -104,7 +121,23 @@ button{
 
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+/* YOUR FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyAOtIxgs88Nfny4c_WnIF95GpmqHGtaYio",
+  authDomain: "prettysafedata-hub.firebaseapp.com",
+  projectId: "prettysafedata-hub",
+  storageBucket: "prettysafedata-hub.firebasestorage.app",
+  messagingSenderId: "291519826599",
+  appId: "1:291519826599:web:0546c070a173b7fbdde982"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 let network="";
 let plan="";
 
@@ -113,7 +146,7 @@ document.querySelectorAll(".net").forEach(n=>{
   n.onclick=()=>{
     document.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
     n.classList.add("active");
-    network=n.innerText;
+    network=n.querySelector("img").src;
   };
 });
 
@@ -126,16 +159,24 @@ document.querySelectorAll(".card").forEach(c=>{
   };
 });
 
-/* BUTTON ACTION */
-document.getElementById("buy").onclick=()=>{
+/* BUY */
+document.getElementById("buy").onclick=async()=>{
   const phone=document.getElementById("phone").value;
 
   if(!network||!plan||!phone){
-    alert("Please fill all fields");
+    alert("Fill all fields");
     return;
   }
 
-  alert("Order ready (Firebase will be added next step)");
+  await addDoc(collection(db,"orders"),{
+    network,
+    plan,
+    phone,
+    status:"Pending",
+    time:new Date()
+  });
+
+  alert("Order saved successfully!");
 };
 </script>
 
