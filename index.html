@@ -16,6 +16,8 @@ button{background:#2563eb;color:white;font-weight:bold}
 
 .admin{background:#111827;padding:15px;border-radius:10px;margin-bottom:15px}
 .card{background:#ffffff15;padding:10px;margin:10px 0;border-radius:10px}
+
+#loginBox{display:none;background:#111827;padding:15px;border-radius:10px;margin-bottom:10px}
 </style>
 
 <script src="https://js.paystack.co/v1/inline.js"></script>
@@ -29,8 +31,16 @@ button{background:#2563eb;color:white;font-weight:bold}
 
 <div class="app">
 
-<!-- ADMIN -->
-<div class="admin">
+<!-- ADMIN LOGIN -->
+<div id="loginBox">
+<h3>Admin Login</h3>
+<input id="user" placeholder="Username">
+<input id="pass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div class="admin" id="dashboard">
 <h3>Orders Dashboard</h3>
 <div id="orders">Loading...</div>
 <h4>Total Sales: GHS <span id="total">0</span></h4>
@@ -66,11 +76,24 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* STATE */
-let network = "";
-let plan = 0;
+/* ADMIN LOGIN */
+function login(){
+ let u = document.getElementById("user").value;
+ let p = document.getElementById("pass").value;
 
-/* SELECT NETWORK */
+ if(u==="Prettybae11" && p==="Prettybae11@"){
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("dashboard").style.display="block";
+  loadOrders();
+ } else {
+  alert("Wrong login");
+ }
+}
+
+/* STATE */
+let network="", plan=0;
+
+/* SELECT */
 document.querySelectorAll(".net").forEach(n=>{
  n.onclick=()=>{
   document.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
@@ -79,7 +102,6 @@ document.querySelectorAll(".net").forEach(n=>{
  };
 });
 
-/* SELECT PLAN */
 document.querySelectorAll(".plan").forEach(p=>{
  p.onclick=()=>{
   document.querySelectorAll(".plan").forEach(x=>x.classList.remove("active"));
@@ -113,13 +135,11 @@ async function loadOrders(){
   document.getElementById("total").innerText = total;
 
  }catch(e){
-  document.getElementById("orders").innerHTML = "DB not loaded";
+  document.getElementById("orders").innerHTML = "DB error";
  }
 }
 
-loadOrders();
-
-/* BUY BUTTON - PROPER PAYSTACK */
+/* BUY BUTTON */
 document.getElementById("buy").onclick = function () {
 
 alert("CLICK DETECTED ✔");
@@ -131,14 +151,13 @@ if(!network || !plan || !phone){
  return;
 }
 
-/* CHECK PAYSTACK */
 if(!window.PaystackPop){
- alert("Payment system failed to load. Try Chrome browser.");
+ alert("Payment system not loaded. Use Chrome browser.");
  return;
 }
 
 let handler = PaystackPop.setup({
-  key: "YOUR_PAYSTACK_PUBLIC_KEY_HERE",
+  key: "pk_test_a264d8673ba4f2a6a3fdf36ae95f29a120493176",
   email: "customer@test.com",
   amount: plan * 100,
   currency: "GHS",
@@ -160,7 +179,7 @@ let handler = PaystackPop.setup({
       loadOrders();
 
     }catch(e){
-      alert("Payment done but database error");
+      alert("Paid but database error");
     }
 
   },
@@ -173,6 +192,8 @@ let handler = PaystackPop.setup({
 handler.openIframe();
 
 };
+
+loadOrders();
 
 </script>
 
