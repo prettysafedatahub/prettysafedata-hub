@@ -67,9 +67,10 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 /* STATE */
-let network="", plan=0;
+let network = "";
+let plan = 0;
 
-/* SELECT */
+/* SELECT NETWORK */
 document.querySelectorAll(".net").forEach(n=>{
  n.onclick=()=>{
   document.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
@@ -78,6 +79,7 @@ document.querySelectorAll(".net").forEach(n=>{
  };
 });
 
+/* SELECT PLAN */
 document.querySelectorAll(".plan").forEach(p=>{
  p.onclick=()=>{
   document.querySelectorAll(".plan").forEach(x=>x.classList.remove("active"));
@@ -117,7 +119,7 @@ async function loadOrders(){
 
 loadOrders();
 
-/* BUY BUTTON (REDIRECT METHOD - FIXED) */
+/* BUY BUTTON - PROPER PAYSTACK */
 document.getElementById("buy").onclick = function () {
 
 alert("CLICK DETECTED ✔");
@@ -129,19 +131,46 @@ if(!network || !plan || !phone){
  return;
 }
 
-/* REDIRECT STYLE PAYSTACK (MORE STABLE ON MOBILE) */
-let email = "customer@test.com";
-let amount = plan * 100;
-let ref = "TX" + Date.now();
+/* CHECK PAYSTACK */
+if(!window.PaystackPop){
+ alert("Payment system failed to load. Try Chrome browser.");
+ return;
+}
 
-/* Build Paystack URL */
-let url = "https://checkout.paystack.com/" + ref;
+let handler = PaystackPop.setup({
+  key: "YOUR_PAYSTACK_PUBLIC_KEY_HERE",
+  email: "customer@test.com",
+  amount: plan * 100,
+  currency: "GHS",
+  ref: "TX" + Date.now(),
 
-window.location.href =
-"https://paystack.com/pay/checkout?" +
-"amount=" + amount +
-"&email=" + email +
-"&reference=" + ref;
+  callback: async function(res){
+
+    try{
+      await db.collection("orders").add({
+        network,
+        plan,
+        phone,
+        status:"Paid",
+        ref:res.reference,
+        time:new Date().toISOString()
+      });
+
+      alert("Payment successful ✔");
+      loadOrders();
+
+    }catch(e){
+      alert("Payment done but database error");
+    }
+
+  },
+
+  onClose: function(){
+    alert("Payment cancelled");
+  }
+});
+
+handler.openIframe();
 
 };
 
