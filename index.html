@@ -4,85 +4,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prettysafedata Hub</title>
 
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+
   <style>
-    body {
-      margin: 0;
-      font-family: system-ui;
-      background: radial-gradient(circle at top, #1f2a5a, #0b0f2f);
-      color: white;
-    }
-
-    .app {
-      max-width: 420px;
-      margin: auto;
-      padding: 20px;
-    }
-
-    h1 { font-size: 26px; }
-
-    .networks {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .net {
-      flex: 1;
-      padding: 14px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.12);
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .card {
-      background: rgba(255,255,255,0.08);
-      padding: 16px;
-      border-radius: 14px;
-      text-align: center;
-      cursor: pointer;
-    }
-
-    input {
-      width: 100%;
-      padding: 14px;
-      margin-top: 20px;
-      border-radius: 12px;
-      border: none;
-    }
-
-    button {
-      width: 100%;
-      padding: 15px;
-      margin-top: 12px;
-      border-radius: 12px;
-      border: none;
-      background: #2563eb;
-      color: white;
-      font-weight: bold;
-    }
+    body { font-family: system-ui; background:#0b0f2f; color:white; margin:0; }
+    .app { max-width:420px; margin:auto; padding:20px; }
+    .net, .card { padding:15px; margin:5px; background:rgba(255,255,255,0.1); border-radius:10px; cursor:pointer; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    input, button { width:100%; padding:12px; margin-top:10px; border:none; border-radius:10px; }
+    button { background:#2563eb; color:white; font-weight:bold; }
   </style>
 </head>
 
 <body>
 
 <div class="app">
+  <h2>Prettysafedata Hub</h2>
 
-  <h1>Prettysafedata Hub</h1>
-  <p>Instant Mobile Data • MTN • Telecel • AT</p>
-
-  <div class="networks">
-    <div class="net">MTN</div>
-    <div class="net">Telecel</div>
-    <div class="net">AT</div>
-  </div>
+  <div class="net">MTN</div>
+  <div class="net">Telecel</div>
+  <div class="net">AT</div>
 
   <div class="grid">
     <div class="card">1GB - GHS 5</div>
@@ -91,65 +33,52 @@
     <div class="card">10GB - GHS 35</div>
   </div>
 
-  <input id="phone" placeholder="Enter phone number" />
-  <button id="buyBtn">Buy Data</button>
-
+  <input id="phone" placeholder="Enter phone number">
+  <button id="buy">Buy Data</button>
 </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAOtIxgs88Nfny4c_WnIF95GpmqHGtaYio",
+  authDomain: "prettysafedata-hub.firebaseapp.com",
+  projectId: "prettysafedata-hub",
+  storageBucket: "prettysafedata-hub.firebasestorage.app",
+  messagingSenderId: "291519826599",
+  appId: "1:291519826599:web:0546c070a173b7fbdde982"
+};
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAOtIxgs88Nfny4c_WnIF95GpmqHGtaYio",
-    authDomain: "prettysafedata-hub.firebaseapp.com",
-    projectId: "prettysafedata-hub",
-    storageBucket: "prettysafedata-hub.firebasestorage.app",
-    messagingSenderId: "291519826599",
-    appId: "1:291519826599:web:0546c070a173b7fbdde982"
-  };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+let network = "";
+let plan = "";
 
-  let selectedNetwork = "";
-  let selectedPlan = "";
+document.querySelectorAll(".net").forEach(el=>{
+  el.onclick=()=> network = el.innerText;
+});
 
-  document.querySelectorAll(".net").forEach(el => {
-    el.addEventListener("click", () => {
-      selectedNetwork = el.innerText;
-    });
+document.querySelectorAll(".card").forEach(el=>{
+  el.onclick=()=> plan = el.innerText;
+});
+
+document.getElementById("buy").onclick = async ()=>{
+  const phone = document.getElementById("phone").value;
+
+  if(!network || !plan || !phone){
+    alert("Fill all fields");
+    return;
+  }
+
+  await db.collection("orders").add({
+    network,
+    plan,
+    phone,
+    status:"Pending",
+    time:new Date()
   });
 
-  document.querySelectorAll(".card").forEach(el => {
-    el.addEventListener("click", () => {
-      selectedPlan = el.innerText;
-    });
-  });
-
-  document.getElementById("buyBtn").addEventListener("click", async () => {
-    const phone = document.getElementById("phone").value;
-
-    if (!selectedNetwork || !selectedPlan || !phone) {
-      alert("Fill all fields");
-      return;
-    }
-
-    const order = {
-      network: selectedNetwork,
-      plan: selectedPlan,
-      phone: phone,
-      status: "Pending",
-      time: new Date()
-    };
-
-    try {
-      await addDoc(collection(db, "orders"), order);
-      alert("Order saved successfully!");
-    } catch (e) {
-      alert("Error: " + e.message);
-    }
-  });
+  alert("Order saved!");
+};
 </script>
 
 </body>
