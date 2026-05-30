@@ -4,6 +4,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prettysafedata Hub</title>
 
+  <!-- FIREBASE CDN -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -28,7 +32,6 @@
       font-size: 13px;
     }
 
-    /* NETWORKS */
     .networks {
       display: flex;
       gap: 10px;
@@ -43,20 +46,12 @@
       font-weight: bold;
       cursor: pointer;
       transition: 0.2s;
-      color: white;
-      border: 1px solid transparent;
     }
 
     .mtn { background: #ffcc00; color: black; }
     .telecel { background: #e53935; }
     .at { background: #1e88e5; }
 
-    .net:hover {
-      transform: translateY(-2px);
-      opacity: 0.9;
-    }
-
-    /* PLANS */
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -69,15 +64,7 @@
       padding: 18px;
       border-radius: 16px;
       text-align: center;
-      backdrop-filter: blur(10px);
-      transition: 0.2s;
       cursor: pointer;
-      border: 1px solid transparent;
-    }
-
-    .card:hover {
-      transform: scale(1.05);
-      border: 1px solid #2563eb;
     }
 
     input {
@@ -97,20 +84,6 @@
       background: linear-gradient(90deg, #2563eb, #4f46e5);
       color: white;
       font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    button:hover {
-      transform: scale(1.02);
-    }
-
-    .order-box {
-      width: 320px;
-      background: rgba(255,255,255,0.08);
-      padding: 20px;
-      border-radius: 16px;
-      text-align: center;
     }
   </style>
 </head>
@@ -124,14 +97,12 @@
     <p>Instant Mobile Data • MTN • Telecel • AT</p>
   </div>
 
-  <!-- NETWORKS -->
   <div class="networks">
     <div class="net mtn">MTN</div>
     <div class="net telecel">Telecel</div>
     <div class="net at">AT</div>
   </div>
 
-  <!-- PLANS -->
   <div class="grid">
     <div class="card">1GB - GHS 5</div>
     <div class="card">2GB - GHS 10</div>
@@ -145,83 +116,61 @@
 </div>
 
 <script>
+// FIREBASE CONFIG (REPLACE THIS)
+const firebaseConfig = {
+  apiKey: "PASTE_HERE",
+  authDomain: "PASTE_HERE",
+  projectId: "PASTE_HERE",
+  storageBucket: "PASTE_HERE",
+  messagingSenderId: "PASTE_HERE",
+  appId: "PASTE_HERE"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 let selectedNetwork = "";
 let selectedPlan = "";
 let phone = "";
 
-// select network
+// network select
 document.querySelectorAll(".net").forEach(el => {
   el.addEventListener("click", () => {
-    document.querySelectorAll(".net").forEach(n => {
-      n.style.transform = "none";
-      n.style.opacity = "1";
-    });
-
-    el.style.transform = "translateY(-2px)";
-    el.style.opacity = "0.8";
     selectedNetwork = el.innerText;
   });
 });
 
-// select plan
+// plan select
 document.querySelectorAll(".card").forEach(el => {
   el.addEventListener("click", () => {
-    document.querySelectorAll(".card").forEach(c => c.style.border = "1px solid transparent");
-    el.style.border = "1px solid #2563eb";
     selectedPlan = el.innerText;
   });
 });
 
-// order storage
-let orders = JSON.parse(localStorage.getItem("orders")) || [];
-
-// checkout + order system
+// buy + save to firebase
 document.querySelector("button").addEventListener("click", () => {
   phone = document.querySelector("input").value;
 
   if (!selectedNetwork || !selectedPlan || !phone) {
-    alert("Please select network, plan and enter phone number");
+    alert("Fill all fields");
     return;
   }
 
-  let orderId = "ORD-" + Math.floor(Math.random() * 1000000);
-
   let order = {
-    id: orderId,
     network: selectedNetwork,
     plan: selectedPlan,
     phone: phone,
-    status: "Pending"
+    status: "Pending",
+    time: new Date()
   };
 
-  orders.push(order);
-  localStorage.setItem("orders", JSON.stringify(orders));
-
-  document.body.innerHTML = `
-    <div style="
-      font-family: system-ui;
-      background: #0b0f2f;
-      color: white;
-      height: 100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    ">
-      <div class="order-box">
-
-        <h2>Order Created</h2>
-
-        <p><b>Order ID:</b> ${orderId}</p>
-        <p><b>Network:</b> ${selectedNetwork}</p>
-        <p><b>Plan:</b> ${selectedPlan}</p>
-        <p><b>Phone:</b> ${phone}</p>
-        <p><b>Status:</b> Pending</p>
-
-        <button onclick="location.reload()">Back</button>
-
-      </div>
-    </div>
-  `;
+  db.collection("orders").add(order)
+    .then(() => {
+      alert("Order saved successfully!");
+    })
+    .catch(err => {
+      alert("Error: " + err);
+    });
 });
 </script>
 
