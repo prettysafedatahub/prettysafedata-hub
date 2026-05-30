@@ -28,6 +28,7 @@
       font-size: 13px;
     }
 
+    /* NETWORKS */
     .networks {
       display: flex;
       gap: 10px;
@@ -44,6 +45,10 @@
       cursor: pointer;
       transition: 0.2s;
       border: 1px solid transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
     }
 
     .net:hover {
@@ -52,6 +57,13 @@
       background: rgba(79,70,229,0.2);
     }
 
+    .net img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+
+    /* PLANS */
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -111,12 +123,25 @@
     <p>Instant Mobile Data • MTN • Telecel • AT</p>
   </div>
 
+  <!-- NETWORKS WITH LOGOS -->
   <div class="networks">
-    <div class="net">MTN</div>
-    <div class="net">Telecel</div>
-    <div class="net">AT</div>
+    <div class="net">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/MTN_Group_Logo.svg">
+      MTN
+    </div>
+
+    <div class="net">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Telecel_Ghana_Logo.png">
+      Telecel
+    </div>
+
+    <div class="net">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/AirtelTigo_logo.png">
+      AT
+    </div>
   </div>
 
+  <!-- PLANS -->
   <div class="grid">
     <div class="card">1GB - GHS 5</div>
     <div class="card">2GB - GHS 10</div>
