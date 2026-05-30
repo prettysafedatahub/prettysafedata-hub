@@ -16,8 +16,6 @@ button{background:#2563eb;color:white;font-weight:bold}
 
 .admin{background:#111827;padding:15px;border-radius:10px;margin-bottom:15px}
 .card{background:#ffffff15;padding:10px;margin:10px 0;border-radius:10px}
-
-#loginBox{display:none;background:#111827;padding:15px;border-radius:10px;margin-bottom:10px}
 </style>
 
 <script src="https://js.paystack.co/v1/inline.js"></script>
@@ -31,22 +29,12 @@ button{background:#2563eb;color:white;font-weight:bold}
 
 <div class="app">
 
-<!-- ADMIN LOGIN -->
-<div id="loginBox">
-<h3>Admin Login</h3>
-<input id="user" placeholder="Username">
-<input id="pass" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
-</div>
-
-<!-- DASHBOARD -->
-<div class="admin" id="dashboard">
+<div class="admin">
 <h3>Orders Dashboard</h3>
 <div id="orders">Loading...</div>
 <h4>Total Sales: GHS <span id="total">0</span></h4>
 </div>
 
-<!-- SHOP -->
 <h2>Prettysafedata Hub</h2>
 
 <h4>Network</h4>
@@ -76,25 +64,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* ADMIN LOGIN */
-function login(){
- let u = document.getElementById("user").value;
- let p = document.getElementById("pass").value;
-
- if(u==="Prettybae11" && p==="Prettybae11@"){
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("dashboard").style.display="block";
-  loadOrders();
- } else {
-  alert("Wrong login");
- }
-}
-
 /* STATE */
 let network = "";
 let plan = 0;
 
-/* SELECT NETWORK */
+/* SELECT */
 document.querySelectorAll(".net").forEach(n=>{
  n.onclick=()=>{
   document.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
@@ -103,7 +77,6 @@ document.querySelectorAll(".net").forEach(n=>{
  };
 });
 
-/* SELECT PLAN */
 document.querySelectorAll(".plan").forEach(p=>{
  p.onclick=()=>{
   document.querySelectorAll(".plan").forEach(x=>x.classList.remove("active"));
@@ -129,7 +102,7 @@ async function loadOrders(){
     <b>Network:</b> ${o.network}<br>
     <b>Plan:</b> ${o.plan}<br>
     <b>Phone:</b> ${o.phone}<br>
-    <b>Status:</b> ${o.status}<br>
+    <b>Status:</b> ${o.status || "Paid"}<br>
     </div>`;
   });
 
@@ -141,7 +114,9 @@ async function loadOrders(){
  }
 }
 
-/* BUY BUTTON (FIXED SAFE VERSION) */
+loadOrders();
+
+/* BUY BUTTON - CLEAN STABLE PAYSTACK FLOW */
 document.getElementById("buy").onclick = function () {
 
   alert("CLICK DETECTED ✔");
@@ -154,9 +129,11 @@ document.getElementById("buy").onclick = function () {
   }
 
   if(typeof PaystackPop === "undefined"){
-    alert("Payment system not loaded. Refresh or use Chrome.");
+    alert("Paystack failed to load. Try Chrome browser or refresh.");
     return;
   }
+
+  alert("Opening payment...");
 
   let handler = PaystackPop.setup({
     key: "pk_test_a264d8673ba4f2a6a3fdf36ae95f29a120493176",
@@ -165,23 +142,19 @@ document.getElementById("buy").onclick = function () {
     currency: "GHS",
     ref: "TX" + Date.now(),
 
-    callback: async function(res){
-      try{
-        await db.collection("orders").add({
-          network,
-          plan,
-          phone,
-          status: "Paid",
-          ref: res.reference,
-          time: new Date().toISOString()
-        });
+    callback: function(res){
+      alert("Payment successful ✔");
 
-        alert("Payment successful ✔");
-        loadOrders();
+      db.collection("orders").add({
+        network,
+        plan,
+        phone,
+        status: "Paid",
+        ref: res.reference,
+        time: new Date().toISOString()
+      });
 
-      } catch(e){
-        alert("Payment succeeded but DB error");
-      }
+      loadOrders();
     },
 
     onClose: function(){
@@ -191,8 +164,6 @@ document.getElementById("buy").onclick = function () {
 
   handler.openIframe();
 };
-
-loadOrders();
 
 </script>
 
