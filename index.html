@@ -151,9 +151,7 @@ if(!network || !plan || !phone){
  return;
 }
 
-if(!window.PaystackPop){
- alert("Payment system not loaded. Use Chrome browser.");
- return;
+alert(typeof PaystackPop);
 }
 
 let handler = PaystackPop.setup({
