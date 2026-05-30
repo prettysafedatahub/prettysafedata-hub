@@ -37,34 +37,31 @@
 
     .net {
       flex: 1;
-      background: rgba(255,255,255,0.12);
-      padding: 14px;
+      padding: 16px;
       border-radius: 14px;
       text-align: center;
       font-weight: bold;
       cursor: pointer;
       transition: 0.2s;
-      border: 1px solid transparent;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
+      color: white;
+    }
+
+    .mtn {
+      background: #ffcc00;
+      color: black;
+    }
+
+    .telecel {
+      background: #e53935;
+    }
+
+    .at {
+      background: #1e88e5;
     }
 
     .net:hover {
       transform: translateY(-2px);
-      border: 1px solid #4f46e5;
-      background: rgba(79,70,229,0.2);
-    }
-
-    /* SAFE LOGO STYLE */
-    .net img {
-      width: 40px;
-      height: 40px;
-      object-fit: contain;
-      background: white;
-      border-radius: 8px;
-      padding: 3px;
+      opacity: 0.9;
     }
 
     /* PLANS */
@@ -129,22 +126,9 @@
 
   <!-- NETWORKS -->
   <div class="networks">
-
-    <div class="net">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/MTN_Group_Logo.svg" alt="MTN">
-      MTN
-    </div>
-
-    <div class="net">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Telecel_Ghana_Logo.png" alt="Telecel">
-      Telecel
-    </div>
-
-    <div class="net">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/AirtelTigo_logo.png" alt="AT">
-      AT
-    </div>
-
+    <div class="net mtn">MTN</div>
+    <div class="net telecel">Telecel</div>
+    <div class="net at">AT</div>
   </div>
 
   <!-- PLANS -->
@@ -167,8 +151,13 @@ let selectedPlan = "";
 // network select
 document.querySelectorAll(".net").forEach(el => {
   el.addEventListener("click", () => {
-    document.querySelectorAll(".net").forEach(n => n.style.background = "rgba(255,255,255,0.12)");
-    el.style.background = "rgba(79,70,229,0.5)";
+    document.querySelectorAll(".net").forEach(n => {
+      n.style.transform = "none";
+      n.style.opacity = "1";
+    });
+
+    el.style.transform = "translateY(-2px)";
+    el.style.opacity = "0.8";
     selectedNetwork = el.innerText;
   });
 });
