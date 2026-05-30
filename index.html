@@ -105,8 +105,7 @@
       transform: scale(1.02);
     }
 
-    /* CHECKOUT */
-    .checkout {
+    .order-box {
       width: 320px;
       background: rgba(255,255,255,0.08);
       padding: 20px;
@@ -150,7 +149,7 @@ let selectedNetwork = "";
 let selectedPlan = "";
 let phone = "";
 
-// network select
+// select network
 document.querySelectorAll(".net").forEach(el => {
   el.addEventListener("click", () => {
     document.querySelectorAll(".net").forEach(n => {
@@ -164,7 +163,7 @@ document.querySelectorAll(".net").forEach(el => {
   });
 });
 
-// plan select
+// select plan
 document.querySelectorAll(".card").forEach(el => {
   el.addEventListener("click", () => {
     document.querySelectorAll(".card").forEach(c => c.style.border = "1px solid transparent");
@@ -173,7 +172,10 @@ document.querySelectorAll(".card").forEach(el => {
   });
 });
 
-// checkout flow
+// order storage
+let orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+// checkout + order system
 document.querySelector("button").addEventListener("click", () => {
   phone = document.querySelector("input").value;
 
@@ -181,6 +183,19 @@ document.querySelector("button").addEventListener("click", () => {
     alert("Please select network, plan and enter phone number");
     return;
   }
+
+  let orderId = "ORD-" + Math.floor(Math.random() * 1000000);
+
+  let order = {
+    id: orderId,
+    network: selectedNetwork,
+    plan: selectedPlan,
+    phone: phone,
+    status: "Pending"
+  };
+
+  orders.push(order);
+  localStorage.setItem("orders", JSON.stringify(orders));
 
   document.body.innerHTML = `
     <div style="
@@ -192,21 +207,17 @@ document.querySelector("button").addEventListener("click", () => {
       align-items:center;
       justify-content:center;
     ">
-      <div class="checkout">
+      <div class="order-box">
 
-        <h2>Confirm Order</h2>
+        <h2>Order Created</h2>
 
+        <p><b>Order ID:</b> ${orderId}</p>
         <p><b>Network:</b> ${selectedNetwork}</p>
         <p><b>Plan:</b> ${selectedPlan}</p>
         <p><b>Phone:</b> ${phone}</p>
+        <p><b>Status:</b> Pending</p>
 
-        <button onclick="alert('Order submitted successfully!')">
-          Confirm Purchase
-        </button>
-
-        <button onclick="location.reload()" style="background:#333;">
-          Back
-        </button>
+        <button onclick="location.reload()">Back</button>
 
       </div>
     </div>
