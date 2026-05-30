@@ -30,10 +30,9 @@ h1{margin:0;}
   flex:1;
   padding:18px;
   border-radius:12px;
-  background:rgba(255,255,255,0.12);
   text-align:center;
-  cursor:pointer;
   font-weight:bold;
+  cursor:pointer;
   transition:0.2s;
 }
 
@@ -41,8 +40,13 @@ h1{margin:0;}
   transform:scale(1.05);
 }
 
+/* NETWORK COLORS */
+.mtn{ background:#ffcc00; color:black; }
+.telecel{ background:#e60000; }
+.at{ background:#007bff; }
+
 .active{
-  border:2px solid #2563eb;
+  outline:3px solid white;
 }
 
 .grid{
@@ -58,11 +62,6 @@ h1{margin:0;}
   border-radius:12px;
   text-align:center;
   cursor:pointer;
-  transition:0.2s;
-}
-
-.card:hover{
-  transform:scale(1.05);
 }
 
 .selected{
@@ -97,11 +96,11 @@ button{
 <h1>Prettysafedata Hub</h1>
 <p>Instant Mobile Data • MTN • Telecel • AT</p>
 
-<!-- NETWORKS (TEXT ONLY FIXED) -->
+<!-- NETWORKS -->
 <div class="networks">
-  <div class="net">MTN</div>
-  <div class="net">TELECEL</div>
-  <div class="net">AT</div>
+  <div class="net mtn">MTN</div>
+  <div class="net telecel">TELECEL</div>
+  <div class="net at">AT</div>
 </div>
 
 <!-- PLANS -->
@@ -121,7 +120,7 @@ button{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
-/* FIREBASE CONFIG (YOUR REAL ONE) */
+/* FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyAOtIxgs88Nfny4c_WnIF95GpmqHGtaYio",
   authDomain: "prettysafedata-hub.firebaseapp.com",
@@ -137,7 +136,7 @@ const db = getFirestore(app);
 let network="";
 let plan="";
 
-/* NETWORK SELECT */
+/* NETWORK CLICK */
 document.querySelectorAll(".net").forEach(n=>{
   n.onclick=()=>{
     document.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
@@ -146,7 +145,7 @@ document.querySelectorAll(".net").forEach(n=>{
   };
 });
 
-/* PLAN SELECT */
+/* PLAN CLICK */
 document.querySelectorAll(".card").forEach(c=>{
   c.onclick=()=>{
     document.querySelectorAll(".card").forEach(x=>x.classList.remove("selected"));
@@ -155,7 +154,7 @@ document.querySelectorAll(".card").forEach(c=>{
   };
 });
 
-/* BUY BUTTON */
+/* BUY ORDER */
 document.getElementById("buy").onclick=async()=>{
   const phone=document.getElementById("phone").value;
 
