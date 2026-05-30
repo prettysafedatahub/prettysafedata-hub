@@ -4,29 +4,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prettysafedata Hub</title>
 
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
 <style>
 body{margin:0;font-family:system-ui;background:#0b0f2f;color:white}
 .app{max-width:420px;margin:auto;padding:20px}
+
+.admin{
+  background:#111827;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:15px;
+}
+
 .box{background:#ffffff22;padding:15px;margin:10px 0;border-radius:10px;cursor:pointer}
 .active{border:2px solid #2563eb}
 input,button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px}
 button{background:#2563eb;color:white;font-weight:bold}
-#admin{display:none;background:#111827;padding:20px}
+
 .card{background:#ffffff15;padding:10px;margin:10px 0;border-radius:10px}
 </style>
-
-<script src="https://js.paystack.co/v1/inline.js"></script>
-
 </head>
 
 <body>
 
+<div class="app">
+
+<!-- ADMIN AT TOP -->
+<div class="admin">
+<h3>Orders Dashboard</h3>
+<div id="orders">No orders yet</div>
+</div>
+
 <!-- SHOP -->
-<div class="app" id="shop">
-
 <h2>Prettysafedata Hub</h2>
-
-<button onclick="openAdmin()">Admin</button>
 
 <h4>Network</h4>
 <div class="box net">MTN</div>
@@ -43,18 +54,9 @@ button{background:#2563eb;color:white;font-weight:bold}
 
 </div>
 
-<!-- ADMIN -->
-<div id="admin">
-<h2>Orders</h2>
-<button onclick="closeAdmin()">Back</button>
-<div id="orders">No data yet</div>
-</div>
-
 <script>
-/* SIMPLE STORAGE (temporary until Firebase fully stable) */
 let orders = [];
 
-/* SELECT */
 let network="", plan=0;
 
 document.querySelectorAll(".net").forEach(n=>{
@@ -73,7 +75,6 @@ document.querySelectorAll(".plan").forEach(p=>{
  };
 });
 
-/* BUY */
 document.getElementById("buy").onclick=function(){
 
 let phone=document.getElementById("phone").value;
@@ -84,7 +85,7 @@ if(!network || !plan || !phone){
 }
 
 if(typeof PaystackPop === "undefined"){
- alert("Payment system not loaded. Refresh page.");
+ alert("Payment not loaded. Refresh page.");
  return;
 }
 
@@ -106,6 +107,7 @@ let handler = PaystackPop.setup({
       time:new Date().toISOString()
     });
 
+    updateAdmin();
     alert("Payment successful!");
   }
 });
@@ -114,11 +116,7 @@ handler.openIframe();
 
 };
 
-/* ADMIN */
-function openAdmin(){
- document.getElementById("shop").style.display="none";
- document.getElementById("admin").style.display="block";
-
+function updateAdmin(){
  let html="";
  orders.forEach(o=>{
   html+=`
@@ -133,12 +131,6 @@ function openAdmin(){
 
  document.getElementById("orders").innerHTML = html || "No orders yet";
 }
-
-function closeAdmin(){
- document.getElementById("admin").style.display="none";
- document.getElementById("shop").style.display="block";
-}
-
 </script>
 
 </body>
