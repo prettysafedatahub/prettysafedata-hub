@@ -44,20 +44,12 @@
       cursor: pointer;
       transition: 0.2s;
       color: white;
+      border: 1px solid transparent;
     }
 
-    .mtn {
-      background: #ffcc00;
-      color: black;
-    }
-
-    .telecel {
-      background: #e53935;
-    }
-
-    .at {
-      background: #1e88e5;
-    }
+    .mtn { background: #ffcc00; color: black; }
+    .telecel { background: #e53935; }
+    .at { background: #1e88e5; }
 
     .net:hover {
       transform: translateY(-2px);
@@ -112,6 +104,15 @@
     button:hover {
       transform: scale(1.02);
     }
+
+    /* CHECKOUT */
+    .checkout {
+      width: 320px;
+      background: rgba(255,255,255,0.08);
+      padding: 20px;
+      border-radius: 16px;
+      text-align: center;
+    }
   </style>
 </head>
 
@@ -147,6 +148,7 @@
 <script>
 let selectedNetwork = "";
 let selectedPlan = "";
+let phone = "";
 
 // network select
 document.querySelectorAll(".net").forEach(el => {
@@ -171,9 +173,44 @@ document.querySelectorAll(".card").forEach(el => {
   });
 });
 
-// button action
+// checkout flow
 document.querySelector("button").addEventListener("click", () => {
-  alert("Network: " + selectedNetwork + "\nPlan: " + selectedPlan);
+  phone = document.querySelector("input").value;
+
+  if (!selectedNetwork || !selectedPlan || !phone) {
+    alert("Please select network, plan and enter phone number");
+    return;
+  }
+
+  document.body.innerHTML = `
+    <div style="
+      font-family: system-ui;
+      background: #0b0f2f;
+      color: white;
+      height: 100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    ">
+      <div class="checkout">
+
+        <h2>Confirm Order</h2>
+
+        <p><b>Network:</b> ${selectedNetwork}</p>
+        <p><b>Plan:</b> ${selectedPlan}</p>
+        <p><b>Phone:</b> ${phone}</p>
+
+        <button onclick="alert('Order submitted successfully!')">
+          Confirm Purchase
+        </button>
+
+        <button onclick="location.reload()" style="background:#333;">
+          Back
+        </button>
+
+      </div>
+    </div>
+  `;
 });
 </script>
 
