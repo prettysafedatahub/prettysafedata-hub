@@ -28,18 +28,17 @@ h1{margin:0;}
 
 .net{
   flex:1;
-  padding:12px;
+  padding:18px;
   border-radius:12px;
   background:rgba(255,255,255,0.12);
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  text-align:center;
   cursor:pointer;
+  font-weight:bold;
+  transition:0.2s;
 }
 
-.net img{
-  width:55px;
-  height:auto;
+.net:hover{
+  transform:scale(1.05);
 }
 
 .active{
@@ -59,6 +58,11 @@ h1{margin:0;}
   border-radius:12px;
   text-align:center;
   cursor:pointer;
+  transition:0.2s;
+}
+
+.card:hover{
+  transform:scale(1.05);
 }
 
 .selected{
@@ -93,19 +97,11 @@ button{
 <h1>Prettysafedata Hub</h1>
 <p>Instant Mobile Data • MTN • Telecel • AT</p>
 
-<!-- NETWORKS WITH LOGOS -->
+<!-- NETWORKS (TEXT ONLY FIXED) -->
 <div class="networks">
-  <div class="net">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/MTN_Logo.svg">
-  </div>
-
-  <div class="net">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Telecel_logo.png">
-  </div>
-
-  <div class="net">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/AT_logo.png">
-  </div>
+  <div class="net">MTN</div>
+  <div class="net">TELECEL</div>
+  <div class="net">AT</div>
 </div>
 
 <!-- PLANS -->
@@ -125,7 +121,7 @@ button{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
-/* YOUR FIREBASE CONFIG */
+/* FIREBASE CONFIG (YOUR REAL ONE) */
 const firebaseConfig = {
   apiKey: "AIzaSyAOtIxgs88Nfny4c_WnIF95GpmqHGtaYio",
   authDomain: "prettysafedata-hub.firebaseapp.com",
@@ -141,16 +137,16 @@ const db = getFirestore(app);
 let network="";
 let plan="";
 
-/* NETWORK CLICK */
+/* NETWORK SELECT */
 document.querySelectorAll(".net").forEach(n=>{
   n.onclick=()=>{
     document.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
     n.classList.add("active");
-    network=n.querySelector("img").src;
+    network=n.innerText;
   };
 });
 
-/* PLAN CLICK */
+/* PLAN SELECT */
 document.querySelectorAll(".card").forEach(c=>{
   c.onclick=()=>{
     document.querySelectorAll(".card").forEach(x=>x.classList.remove("selected"));
@@ -159,7 +155,7 @@ document.querySelectorAll(".card").forEach(c=>{
   };
 });
 
-/* BUY */
+/* BUY BUTTON */
 document.getElementById("buy").onclick=async()=>{
   const phone=document.getElementById("phone").value;
 
