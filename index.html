@@ -14,7 +14,7 @@ body{margin:0;font-family:system-ui;background:#0b0f2f;color:white}
 input,button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px}
 button{background:#2563eb;color:white;font-weight:bold}
 
-#dashboard{display:none;background:#111827;padding:15px;border-radius:10px;margin-top:10px}
+.admin{background:#111827;padding:15px;border-radius:10px;margin-bottom:15px}
 .card{background:#ffffff15;padding:10px;margin:10px 0;border-radius:10px}
 </style>
 
@@ -29,18 +29,10 @@ button{background:#2563eb;color:white;font-weight:bold}
 
 <div class="app">
 
-<!-- LOGIN -->
-<div id="loginBox">
-<h3>Admin Login</h3>
-<input id="user" placeholder="Username">
-<input id="pass" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
-</div>
-
-<!-- DASHBOARD -->
-<div id="dashboard">
+<!-- ADMIN -->
+<div class="admin">
 <h3>Orders Dashboard</h3>
-<div id="orders">No orders yet</div>
+<div id="orders">Loading...</div>
 <h4>Total Sales: GHS <span id="total">0</span></h4>
 </div>
 
@@ -64,7 +56,7 @@ button{background:#2563eb;color:white;font-weight:bold}
 
 <script>
 
-/* FIREBASE */
+/* FIREBASE SAFE INIT */
 const firebaseConfig = {
   apiKey: "AIzaSyAOtIxgs88Nfny4c_WnIF95GpmqHGtaYio",
   authDomain: "prettysafedata-hub.firebaseapp.com",
@@ -74,23 +66,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* LOGIN */
-function login(){
- let u = document.getElementById("user").value;
- let p = document.getElementById("pass").value;
-
- if(u==="admin" && p==="1234"){
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("dashboard").style.display="block";
-  loadOrders();
- } else {
-  alert("Wrong login");
- }
-}
-
-/* SELECT */
+/* STATE */
 let network="", plan=0;
+let earnings = 0;
 
+/* SELECT NETWORK */
 document.querySelectorAll(".net").forEach(n=>{
  n.onclick=()=>{
   document.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
@@ -99,6 +79,7 @@ document.querySelectorAll(".net").forEach(n=>{
  };
 });
 
+/* SELECT PLAN */
 document.querySelectorAll(".plan").forEach(p=>{
  p.onclick=()=>{
   document.querySelectorAll(".plan").forEach(x=>x.classList.remove("active"));
@@ -107,7 +88,7 @@ document.querySelectorAll(".plan").forEach(p=>{
  };
 });
 
-/* BUY */
+/* BUY BUTTON */
 document.getElementById("buy").onclick=function(){
 
 let phone=document.getElementById("phone").value;
@@ -131,17 +112,24 @@ let handler = PaystackPop.setup({
 
   callback: async function(res){
 
-    await db.collection("orders").add({
-      network,
-      plan,
-      phone,
-      status:"Paid",
-      ref:res.reference,
-      time:new Date().toISOString()
-    });
+    try{
+      await db.collection("orders").add({
+        network,
+        plan,
+        phone,
+        status:"Paid",
+        ref:res.reference,
+        time:new Date().toISOString()
+      });
 
-    alert("Payment successful!");
-    loadOrders();
+      alert("Payment successful!");
+      loadOrders();
+
+    } catch(e){
+      alert("Saved payment but DB error");
+      console.log(e);
+    }
+
   }
 });
 
@@ -151,14 +139,18 @@ handler.openIframe();
 
 /* LOAD ORDERS */
 async function loadOrders(){
+
+ try{
+
  let snap = await db.collection("orders").get();
 
  let html = "";
- let total = 0;
+ earnings = 0;
 
  snap.forEach(doc=>{
   let o = doc.data();
-  total += Number(o.plan);
+
+  earnings += Number(o.plan);
 
   html += `
   <div class="card">
@@ -170,8 +162,16 @@ async function loadOrders(){
  });
 
  document.getElementById("orders").innerHTML = html || "No orders yet";
- document.getElementById("total").innerText = total;
+ document.getElementById("total").innerText = earnings;
+
+ }catch(e){
+  document.getElementById("orders").innerHTML = "DB not loaded";
+  console.log(e);
+ }
+
 }
+
+loadOrders();
 
 </script>
 
