@@ -18,8 +18,10 @@ button{background:#2563eb;color:white;font-weight:bold}
 .card{background:#ffffff15;padding:10px;margin:10px 0;border-radius:10px}
 </style>
 
+<!-- Paystack -->
 <script src="https://js.paystack.co/v1/inline.js"></script>
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -56,12 +58,7 @@ button{background:#2563eb;color:white;font-weight:bold}
 
 <script>
 
-/* SAFE START TEST */
-window.onload = function(){
-  console.log("PAGE LOADED ✔");
-};
-
-/* FIREBASE */
+/* FIREBASE INIT */
 const firebaseConfig = {
   apiKey: "AIzaSyAOtIxgs88Nfny4c_WnIF95GpmqHGtaYio",
   authDomain: "prettysafedata-hub.firebaseapp.com",
@@ -72,7 +69,8 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 /* STATE */
-let network="", plan=0;
+let network = "";
+let plan = 0;
 
 /* SELECT NETWORK */
 document.querySelectorAll(".net").forEach(n=>{
@@ -92,20 +90,11 @@ document.querySelectorAll(".plan").forEach(p=>{
  };
 });
 
-/* BUY BUTTON — SAFE TEST FIRST */
-document.getElementById("buy").onclick = function () {
-
-alert("CLICK DETECTED ✔");
-
-let phone = document.getElementById("phone").value;
-
-if(!network || !plan || !phone){
- alert("Fill all fields");
- return;
-}
+/* SAFE PAYSTACK CHECK */
+function openPayment(phone){
 
 if(typeof PaystackPop === "undefined"){
- alert("Paystack not loaded");
+ alert("Payment system not loaded. Refresh page or use Chrome.");
  return;
 }
 
@@ -118,60 +107,70 @@ let handler = PaystackPop.setup({
 
   callback: async function(res){
 
-    try{
-      await db.collection("orders").add({
-        network,
-        plan,
-        phone,
-        status:"Paid",
-        ref:res.reference,
-        time:new Date().toISOString()
-      });
+    await db.collection("orders").add({
+      network,
+      plan,
+      phone,
+      status:"Paid",
+      ref:res.reference,
+      time:new Date().toISOString()
+    });
 
-      alert("Payment successful ✔");
-      loadOrders();
-
-    }catch(e){
-      alert("Saved but DB error");
-      console.log(e);
-    }
-
+    alert("Payment successful ✔");
+    loadOrders();
   }
 });
 
 handler.openIframe();
+}
+
+/* BUY BUTTON */
+document.getElementById("buy").onclick = function () {
+
+alert("CLICK DETECTED ✔");
+
+let phone = document.getElementById("phone").value;
+
+if(!network || !plan || !phone){
+ alert("Fill all fields");
+ return;
+}
+
+openPayment(phone);
 
 };
 
 /* LOAD ORDERS */
 async function loadOrders(){
 
- try{
- let snap = await db.collection("orders").get();
+try{
 
- let html = "";
- let total = 0;
+let snap = await db.collection("orders").get();
 
- snap.forEach(doc=>{
-  let o = doc.data();
-  total += Number(o.plan);
+let html = "";
+let total = 0;
 
-  html += `
-  <div class="card">
-  <b>Network:</b> ${o.network}<br>
-  <b>Plan:</b> ${o.plan}<br>
-  <b>Phone:</b> ${o.phone}<br>
-  <b>Status:</b> ${o.status}<br>
-  </div>`;
- });
+snap.forEach(doc=>{
+ let o = doc.data();
 
- document.getElementById("orders").innerHTML = html || "No orders yet";
- document.getElementById("total").innerText = total;
+ total += Number(o.plan);
 
- }catch(e){
-  document.getElementById("orders").innerHTML = "DB not loaded";
-  console.log(e);
- }
+ html += `
+ <div class="card">
+ <b>Network:</b> ${o.network}<br>
+ <b>Plan:</b> ${o.plan}<br>
+ <b>Phone:</b> ${o.phone}<br>
+ <b>Status:</b> ${o.status}<br>
+ </div>`;
+});
+
+document.getElementById("orders").innerHTML = html || "No orders yet";
+document.getElementById("total").innerText = total;
+
+}catch(e){
+ document.getElementById("orders").innerHTML = "DB error";
+ console.log(e);
+}
 
 }
 
