@@ -1,194 +1,141 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prettysafedata Hub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prettysafedata Hub</title>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+<style>
+body{
+  margin:0;
+  font-family:system-ui;
+  background:linear-gradient(135deg,#0b0f2f,#1f2a5a);
+  color:white;
+}
 
-  <style>
-    body {
-      margin: 0;
-      font-family: system-ui;
-      background: radial-gradient(circle at top, #1f2a5a, #0b0f2f);
-      color: white;
-    }
+.app{
+  max-width:420px;
+  margin:auto;
+  padding:20px;
+}
 
-    .app {
-      max-width: 420px;
-      margin: auto;
-      padding: 20px;
-    }
+h1{margin:0;}
 
-    .top h1 {
-      font-size: 28px;
-      margin-bottom: 5px;
-    }
+.networks{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+}
 
-    .top p {
-      opacity: 0.7;
-      font-size: 13px;
-    }
+.net{
+  flex:1;
+  padding:15px;
+  border-radius:12px;
+  background:#ffffff20;
+  text-align:center;
+  cursor:pointer;
+}
 
-    /* NETWORKS */
-    .networks {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
+.active{
+  background:#2563eb !important;
+}
 
-    .net {
-      flex: 1;
-      padding: 16px;
-      border-radius: 14px;
-      text-align: center;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-      background: rgba(255,255,255,0.12);
-    }
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:20px;
+}
 
-    .net:hover {
-      transform: translateY(-2px);
-      opacity: 0.9;
-    }
+.card{
+  padding:15px;
+  background:#ffffff15;
+  border-radius:12px;
+  text-align:center;
+  cursor:pointer;
+}
 
-    /* PLANS */
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 20px;
-    }
+.selected{
+  border:2px solid #4f46e5;
+}
 
-    .card {
-      background: rgba(255,255,255,0.08);
-      padding: 18px;
-      border-radius: 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: 0.2s;
-    }
+input{
+  width:100%;
+  padding:12px;
+  margin-top:20px;
+  border-radius:10px;
+  border:none;
+}
 
-    .card:hover {
-      transform: scale(1.05);
-      border: 1px solid #2563eb;
-    }
-
-    input {
-      width: 100%;
-      padding: 14px;
-      margin-top: 20px;
-      border-radius: 12px;
-      border: none;
-    }
-
-    button {
-      width: 100%;
-      padding: 15px;
-      margin-top: 12px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(90deg,#2563eb,#4f46e5);
-      color: white;
-      font-weight: bold;
-    }
-
-    .logo-box {
-      height: 60px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      opacity: 0.8;
-    }
-  </style>
+button{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  border:none;
+  border-radius:10px;
+  background:#2563eb;
+  color:white;
+  font-weight:bold;
+}
+</style>
 </head>
 
 <body>
 
 <div class="app">
 
-  <div class="top">
-    <h1>Prettysafedata Hub</h1>
-    <p>Instant Mobile Data • MTN • Telecel • AT</p>
-  </div>
+<h1>Prettysafedata Hub</h1>
+<p>Instant Mobile Data</p>
 
-  <!-- NETWORKS (RESTORED LOOK) -->
-  <div class="networks">
-    <div class="net">
-      <div class="logo-box">MTN</div>
-    </div>
-    <div class="net">
-      <div class="logo-box">Telecel</div>
-    </div>
-    <div class="net">
-      <div class="logo-box">AT</div>
-    </div>
-  </div>
+<div class="networks">
+  <div class="net">MTN</div>
+  <div class="net">Telecel</div>
+  <div class="net">AT</div>
+</div>
 
-  <!-- PLANS -->
-  <div class="grid">
-    <div class="card">1GB - GHS 5</div>
-    <div class="card">2GB - GHS 10</div>
-    <div class="card">5GB - GHS 20</div>
-    <div class="card">10GB - GHS 35</div>
-  </div>
+<div class="grid">
+  <div class="card">1GB - GHS 5</div>
+  <div class="card">2GB - GHS 10</div>
+  <div class="card">5GB - GHS 20</div>
+  <div class="card">10GB - GHS 35</div>
+</div>
 
-  <input id="phone" placeholder="Enter phone number" />
-  <button id="buyBtn">Buy Data</button>
+<input id="phone" placeholder="Enter phone number">
+<button id="buy">Buy Data</button>
 
 </div>
 
 <script>
-/* FIREBASE CONFIG (KEEP YOUR REAL ONE HERE) */
-const firebaseConfig = {
-  apiKey: "PASTE_HERE",
-  authDomain: "PASTE_HERE",
-  projectId: "PASTE_HERE",
-  storageBucket: "PASTE_HERE",
-  messagingSenderId: "PASTE_HERE",
-  appId: "PASTE_HERE"
-};
+let network="";
+let plan="";
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-let network = "";
-let plan = "";
-
-/* SELECT NETWORK */
-document.querySelectorAll(".net").forEach(el=>{
-  el.onclick = ()=> network = el.innerText;
+/* NETWORK CLICK */
+document.querySelectorAll(".net").forEach(n=>{
+  n.onclick=()=>{
+    document.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
+    n.classList.add("active");
+    network=n.innerText;
+  };
 });
 
-/* SELECT PLAN */
-document.querySelectorAll(".card").forEach(el=>{
-  el.onclick = ()=> plan = el.innerText;
+/* PLAN CLICK */
+document.querySelectorAll(".card").forEach(c=>{
+  c.onclick=()=>{
+    document.querySelectorAll(".card").forEach(x=>x.classList.remove("selected"));
+    c.classList.add("selected");
+    plan=c.innerText;
+  };
 });
 
-/* SAVE ORDER */
-document.getElementById("buyBtn").onclick = async ()=>{
-  const phone = document.getElementById("phone").value;
+/* BUTTON ACTION */
+document.getElementById("buy").onclick=()=>{
+  const phone=document.getElementById("phone").value;
 
-  if(!network || !plan || !phone){
-    alert("Fill all fields");
+  if(!network||!plan||!phone){
+    alert("Please fill all fields");
     return;
   }
 
-  await db.collection("orders").add({
-    network,
-    plan,
-    phone,
-    status:"Pending",
-    time:new Date()
-  });
-
-  alert("Order saved successfully!");
+  alert("Order ready (Firebase will be added next step)");
 };
 </script>
 
