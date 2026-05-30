@@ -13,13 +13,19 @@ body{margin:0;font-family:system-ui;background:#0b0f2f;color:white}
 .active{border:2px solid #2563eb}
 input,button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px}
 button{background:#2563eb;color:white;font-weight:bold}
+#admin{display:none;background:#111827;padding:20px}
+.card{background:#ffffff15;padding:10px;margin:10px 0;border-radius:10px}
 </style>
 </head>
 
 <body>
-<div class="app">
+
+<!-- SHOP -->
+<div class="app" id="shop">
 
 <h2>Prettysafedata Hub</h2>
+
+<button onclick="showAdmin()">Admin</button>
 
 <h4>Network</h4>
 <div class="box net">MTN</div>
@@ -36,7 +42,30 @@ button{background:#2563eb;color:white;font-weight:bold}
 
 </div>
 
-<script>
+<!-- ADMIN -->
+<div id="admin">
+<h2>Orders Dashboard</h2>
+<button onclick="showShop()">Back</button>
+<div id="orders">Loading...</div>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAOtIxgs88Nfny4c_WnIF95GpmqHGtaYio",
+  authDomain: "prettysafedata-hub.firebaseapp.com",
+  projectId: "prettysafedata-hub",
+  storageBucket: "prettysafedata-hub.firebasestorage.app",
+  messagingSenderId: "291519826599",
+  appId: "1:291519826599:web:0546c070a173b7fbdde982"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 let network="", plan=0;
 
 document.querySelectorAll(".net").forEach(n=>{
@@ -71,27 +100,57 @@ let handler=PaystackPop.setup({
  currency:"GHS",
  ref:"TX"+Date.now(),
 
- callback:function(res){
+ callback:async function(res){
 
- fetch("https://YOUR_FIREBASE_URL/orders.json",{
-  method:"POST",
-  body:JSON.stringify({
-   network,
-   plan,
-   phone,
-   status:"Paid",
-   ref:res.reference,
-   time:new Date().toISOString()
-  })
+ await addDoc(collection(db,"orders"),{
+  network,
+  plan,
+  phone,
+  status:"Paid",
+  ref:res.reference,
+  time:new Date().toISOString()
  });
 
  alert("Payment successful!");
+ loadOrders();
  }
 });
 
 handler.openIframe();
 
 };
+
+/* ADMIN */
+window.showAdmin=()=>{
+ document.getElementById("shop").style.display="none";
+ document.getElementById("admin").style.display="block";
+ loadOrders();
+};
+
+window.showShop=()=>{
+ document.getElementById("admin").style.display="none";
+ document.getElementById("shop").style.display="block";
+};
+
+async function loadOrders(){
+ const snap=await getDocs(collection(db,"orders"));
+ let html="";
+ snap.forEach(doc=>{
+  let d=doc.data();
+  html+=`
+  <div class="card">
+  <b>Network:</b> ${d.network}<br>
+  <b>Plan:</b> ${d.plan}<br>
+  <b>Phone:</b> ${d.phone}<br>
+  <b>Status:</b> ${d.status}<br>
+  <b>Time:</b> ${d.time}
+  </div>`;
+ });
+ document.getElementById("orders").innerHTML=html;
+}
+
+window.loadOrders=loadOrders;
+
 </script>
 
 </body>
