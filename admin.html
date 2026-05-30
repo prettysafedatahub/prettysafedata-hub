@@ -5,20 +5,8 @@
 <title>Admin Dashboard</title>
 
 <style>
-body{
-  font-family:system-ui;
-  background:#0b0f2f;
-  color:white;
-  margin:0;
-  padding:20px;
-}
-
-.card{
-  background:#ffffff15;
-  padding:15px;
-  margin:10px 0;
-  border-radius:10px;
-}
+body{font-family:system-ui;background:#111827;color:white;margin:0;padding:20px}
+.card{background:#ffffff15;padding:12px;margin:10px 0;border-radius:10px}
 </style>
 </head>
 
@@ -27,45 +15,32 @@ body{
 <h2>Orders Dashboard</h2>
 <div id="orders">Loading...</div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+<script>
+async function load(){
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAOtIxgs88Nfny4c_WnIF95GpmqHGtaYio",
-  authDomain: "prettysafedata-hub.firebaseapp.com",
-  projectId: "prettysafedata-hub",
-  storageBucket: "prettysafedata-hub.firebasestorage.app",
-  messagingSenderId: "291519826599",
-  appId: "1:291519826599:web:0546c070a173b7fbdde982"
-};
+let res = await fetch("https://YOUR_FIREBASE_URL/orders.json");
+let data = await res.json();
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+let html="";
 
-async function loadOrders(){
-  const snap = await getDocs(collection(db,"orders"));
-
-  let html = "";
-
-  snap.forEach(doc=>{
-    let d = doc.data();
-
-    html += `
-      <div class="card">
-        <b>Network:</b> ${d.network}<br>
-        <b>Plan:</b> ${d.plan}<br>
-        <b>Phone:</b> ${d.phone}<br>
-        <b>Status:</b> ${d.status}<br>
-        <b>Time:</b> ${d.time}
-      </div>
-    `;
-  });
-
-  document.getElementById("orders").innerHTML = html;
+for(let id in data){
+ let d=data[id];
+ html+=`
+ <div class="card">
+  <b>Network:</b> ${d.network}<br>
+  <b>Plan:</b> ${d.plan}<br>
+  <b>Phone:</b> ${d.phone}<br>
+  <b>Status:</b> ${d.status}<br>
+  <b>Time:</b> ${d.time}
+ </div>
+ `;
 }
 
-loadOrders();
+document.getElementById("orders").innerHTML=html;
+
+}
+
+load();
 </script>
 
 </body>
