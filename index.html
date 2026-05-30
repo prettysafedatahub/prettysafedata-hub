@@ -4,11 +4,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prettysafedata Hub</title>
 
-<script src="https://js.paystack.co/v1/inline.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <style>
 body{margin:0;font-family:system-ui;background:#0b0f2f;color:white}
 .app{max-width:420px;margin:auto;padding:20px}
@@ -16,14 +11,22 @@ body{margin:0;font-family:system-ui;background:#0b0f2f;color:white}
 .active{border:2px solid #2563eb}
 input,button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px}
 button{background:#2563eb;color:white;font-weight:bold}
+#admin{display:none;background:#111827;padding:20px}
+.card{background:#ffffff15;padding:10px;margin:10px 0;border-radius:10px}
 </style>
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
 </head>
 
 <body>
 
-<div class="app">
+<!-- SHOP -->
+<div class="app" id="shop">
 
 <h2>Prettysafedata Hub</h2>
+
+<button onclick="openAdmin()">Admin</button>
 
 <h4>Network</h4>
 <div class="box net">MTN</div>
@@ -40,16 +43,18 @@ button{background:#2563eb;color:white;font-weight:bold}
 
 </div>
 
+<!-- ADMIN -->
+<div id="admin">
+<h2>Orders</h2>
+<button onclick="closeAdmin()">Back</button>
+<div id="orders">No data yet</div>
+</div>
+
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAOtIxgs88Nfny4c_WnIF95GpmqHGtaYio",
-  authDomain: "prettysafedata-hub.firebaseapp.com",
-  projectId: "prettysafedata-hub"
-};
+/* SIMPLE STORAGE (temporary until Firebase fully stable) */
+let orders = [];
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
+/* SELECT */
 let network="", plan=0;
 
 document.querySelectorAll(".net").forEach(n=>{
@@ -68,12 +73,18 @@ document.querySelectorAll(".plan").forEach(p=>{
  };
 });
 
+/* BUY */
 document.getElementById("buy").onclick=function(){
 
 let phone=document.getElementById("phone").value;
 
-if(!network||!plan||!phone){
+if(!network || !plan || !phone){
  alert("Fill all fields");
+ return;
+}
+
+if(typeof PaystackPop === "undefined"){
+ alert("Payment system not loaded. Refresh page.");
  return;
 }
 
@@ -86,13 +97,13 @@ let handler = PaystackPop.setup({
 
   callback: function(res){
 
-    db.collection("orders").add({
+    orders.push({
       network,
       plan,
       phone,
-      status: "Paid",
-      ref: res.reference,
-      time: new Date().toISOString()
+      status:"Paid",
+      ref:res.reference,
+      time:new Date().toISOString()
     });
 
     alert("Payment successful!");
@@ -102,6 +113,32 @@ let handler = PaystackPop.setup({
 handler.openIframe();
 
 };
+
+/* ADMIN */
+function openAdmin(){
+ document.getElementById("shop").style.display="none";
+ document.getElementById("admin").style.display="block";
+
+ let html="";
+ orders.forEach(o=>{
+  html+=`
+  <div class="card">
+  <b>Network:</b> ${o.network}<br>
+  <b>Plan:</b> ${o.plan}<br>
+  <b>Phone:</b> ${o.phone}<br>
+  <b>Status:</b> ${o.status}<br>
+  <b>Time:</b> ${o.time}
+  </div>`;
+ });
+
+ document.getElementById("orders").innerHTML = html || "No orders yet";
+}
+
+function closeAdmin(){
+ document.getElementById("admin").style.display="none";
+ document.getElementById("shop").style.display="block";
+}
+
 </script>
 
 </body>
