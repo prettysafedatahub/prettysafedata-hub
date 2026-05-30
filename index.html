@@ -4,6 +4,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prettysafedata Hub</title>
 
+<!-- Flutterwave -->
+<script src="https://checkout.flutterwave.com/v3.js"></script>
+
 <style>
 body{
   margin:0;
@@ -33,20 +36,11 @@ h1{margin:0;}
   text-align:center;
   font-weight:bold;
   cursor:pointer;
-  transition:0.2s;
+  background:rgba(255,255,255,0.12);
 }
-
-.net:hover{
-  transform:scale(1.05);
-}
-
-/* NETWORK COLORS */
-.mtn{ background:#ffcc00; color:black; }
-.telecel{ background:#e60000; }
-.at{ background:#007bff; }
 
 .active{
-  outline:3px solid white;
+  border:2px solid #2563eb;
 }
 
 .grid{
@@ -98,9 +92,9 @@ button{
 
 <!-- NETWORKS -->
 <div class="networks">
-  <div class="net mtn">MTN</div>
-  <div class="net telecel">TELECEL</div>
-  <div class="net at">AT</div>
+  <div class="net">MTN</div>
+  <div class="net">TELECEL</div>
+  <div class="net">AT</div>
 </div>
 
 <!-- PLANS -->
@@ -134,9 +128,9 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let network="";
-let plan="";
+let planPrice="";
 
-/* NETWORK CLICK */
+/* NETWORK SELECT */
 document.querySelectorAll(".net").forEach(n=>{
   n.onclick=()=>{
     document.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
@@ -145,33 +139,53 @@ document.querySelectorAll(".net").forEach(n=>{
   };
 });
 
-/* PLAN CLICK */
+/* PLAN SELECT (GET PRICE ONLY) */
 document.querySelectorAll(".card").forEach(c=>{
   c.onclick=()=>{
     document.querySelectorAll(".card").forEach(x=>x.classList.remove("selected"));
     c.classList.add("selected");
-    plan=c.innerText;
+    planPrice=c.innerText.split("- GHS ")[1];
   };
 });
 
-/* BUY ORDER */
-document.getElementById("buy").onclick=async()=>{
+/* PAYMENT + SAVE */
+document.getElementById("buy").onclick=function(){
   const phone=document.getElementById("phone").value;
 
-  if(!network||!plan||!phone){
+  if(!network||!planPrice||!phone){
     alert("Fill all fields");
     return;
   }
 
-  await addDoc(collection(db,"orders"),{
-    network,
-    plan,
-    phone,
-    status:"Pending",
-    time:new Date()
-  });
+  FlutterwaveCheckout({
+    public_key: "FLWPUBK_TEST-ffb0c1b585176f66193391cd43baf586-X",
+    tx_ref: "TX-"+Date.now(),
+    amount: planPrice,
+    currency: "GHS",
+    payment_options: "mobilemoneyghana",
+    customer: {
+      email: "customer@example.com",
+      phone_number: phone,
+      name: "Prettysafedata User"
+    },
+    customizations: {
+      title: "Prettysafedata Hub",
+      description: "Data Purchase",
+    },
+    callback: async function(data){
 
-  alert("Order saved successfully!");
+      await addDoc(collection(db,"orders"),{
+        network,
+        plan: planPrice,
+        phone,
+        status:"Paid",
+        tx_ref:data.tx_ref,
+        time:new Date()
+      });
+
+      alert("Payment successful & order saved!");
+    }
+  });
 };
 </script>
 
