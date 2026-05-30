@@ -1,42 +1,78 @@
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #0b0f2f, #111c44);
+  font-family: system-ui;
+  background: radial-gradient(circle at top, #1f2a5a, #0b0f2f);
   color: white;
 }
 
-h1 {
-  margin-top: 30px;
+.app {
+  max-width: 420px;
+  margin: auto;
+  padding: 20px;
 }
 
-p {
-  opacity: 0.8;
+.top h1 {
+  font-size: 28px;
+  margin-bottom: 5px;
 }
 
-div {
+.top p {
+  opacity: 0.7;
+  font-size: 13px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.card {
   background: rgba(255,255,255,0.08);
-  margin: 10px auto;
-  padding: 15px;
-  width: 80%;
-  border-radius: 10px;
-  backdrop-filter: blur(5px);
+  padding: 18px;
+  border-radius: 14px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.card span {
+  display: block;
+  margin-top: 6px;
+  font-weight: bold;
+}
+
+.form {
+  margin-top: 25px;
 }
 
 input {
-  width: 80%;
-  padding: 12px;
-  margin-top: 15px;
-  border-radius: 8px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
   border: none;
+  margin-bottom: 10px;
 }
 
 button {
-  width: 80%;
-  padding: 12px;
-  margin-top: 10px;
-  background: #2563eb;
+  width: 100%;
+  padding: 14px;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #2563eb, #4f46e5);
   color: white;
   font-weight: bold;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 12px;
+  opacity: 0.6;
 }
