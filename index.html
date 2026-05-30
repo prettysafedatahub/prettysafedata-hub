@@ -56,7 +56,12 @@ button{background:#2563eb;color:white;font-weight:bold}
 
 <script>
 
-/* FIREBASE SAFE INIT */
+/* SAFE START TEST */
+window.onload = function(){
+  console.log("PAGE LOADED ✔");
+};
+
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyAOtIxgs88Nfny4c_WnIF95GpmqHGtaYio",
   authDomain: "prettysafedata-hub.firebaseapp.com",
@@ -68,7 +73,6 @@ const db = firebase.firestore();
 
 /* STATE */
 let network="", plan=0;
-let earnings = 0;
 
 /* SELECT NETWORK */
 document.querySelectorAll(".net").forEach(n=>{
@@ -88,10 +92,12 @@ document.querySelectorAll(".plan").forEach(p=>{
  };
 });
 
-/* BUY BUTTON */
-document.getElementById("buy").onclick=function(){
+/* BUY BUTTON — SAFE TEST FIRST */
+document.getElementById("buy").onclick = function () {
 
-let phone=document.getElementById("phone").value;
+alert("CLICK DETECTED ✔");
+
+let phone = document.getElementById("phone").value;
 
 if(!network || !plan || !phone){
  alert("Fill all fields");
@@ -99,7 +105,7 @@ if(!network || !plan || !phone){
 }
 
 if(typeof PaystackPop === "undefined"){
- alert("Payment system not loaded");
+ alert("Paystack not loaded");
  return;
 }
 
@@ -122,11 +128,11 @@ let handler = PaystackPop.setup({
         time:new Date().toISOString()
       });
 
-      alert("Payment successful!");
+      alert("Payment successful ✔");
       loadOrders();
 
-    } catch(e){
-      alert("Saved payment but DB error");
+    }catch(e){
+      alert("Saved but DB error");
       console.log(e);
     }
 
@@ -141,16 +147,14 @@ handler.openIframe();
 async function loadOrders(){
 
  try{
-
  let snap = await db.collection("orders").get();
 
  let html = "";
- earnings = 0;
+ let total = 0;
 
  snap.forEach(doc=>{
   let o = doc.data();
-
-  earnings += Number(o.plan);
+  total += Number(o.plan);
 
   html += `
   <div class="card">
@@ -162,7 +166,7 @@ async function loadOrders(){
  });
 
  document.getElementById("orders").innerHTML = html || "No orders yet";
- document.getElementById("total").innerText = earnings;
+ document.getElementById("total").innerText = total;
 
  }catch(e){
   document.getElementById("orders").innerHTML = "DB not loaded";
